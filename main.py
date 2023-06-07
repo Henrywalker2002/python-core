@@ -1,5 +1,8 @@
 from functools import reduce
 from zipfile import ZipFile
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 def upperFirstChar(s : str):
     #string split
@@ -70,6 +73,7 @@ class ManagementStu:
         f = open("student.txt", 'a')
         # name: str, id: int, sex: bool, math: float, physical: float, chemistry: float
         for x in self.studentLst:
+            logging.info(x)
             arr = (x.name, x.id, x.sex, x.math, x.physical, x.chemistry)
             arr = list(map(lambda x : str(x), arr))
             f.write('.'.join(arr) + '\n')
@@ -99,7 +103,7 @@ class ManagementStu2:
                     raise Ex(x.id)
                 self.studentDic[x.id] = x 
         except Ex as e:
-            print(e)
+            logging.exception(e ,exc_info=True)
 
     def __str__(self):  
         return reduce(lambda prev, curr: prev + str(curr), self.studentDic.values(), '')
@@ -110,7 +114,7 @@ class ManagementStu2:
                 raise Ex(stu.id)
             self.studentDic[stu.id] = stu
         except Ex as e :
-            print(e)
+            logging.exception(e, exc_info=True)
 
     def removeStudent(self, id: int):
         self.studentDic.pop(id)
@@ -147,13 +151,13 @@ st3 = Student("name", 123, True, 5, 6, 7)
 lst = []
 lst.append(st)
 lst.append(st2)
-manage = ManagementStu(lst)
+manage = ManagementStu2(lst)
 manage.addStudent(st3)
-manage.removeStudentById(456)
+manage.removeStudent(456)
 # manage.saveToFile()
 # manage.studentLst = []
 # manage.loadFromFile("student.txt")
-manage.extractZip()
+# manage.extractZip()
 print(manage)
 
 # print(len(manage))
