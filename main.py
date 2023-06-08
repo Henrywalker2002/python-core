@@ -1,6 +1,13 @@
 from functools import reduce
 from zipfile import ZipFile
 import logging
+import smtplib
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import PyPDF2
+from PIL import Image
+import unittest
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -141,23 +148,106 @@ def testSet():
     s.add('a')
     print(s)
 
-# Polymorphism
-p = People("Nguyen Ngoc Hung", 456, True)
-st = Student("Nguyen Ngoc Hung", 456, False, 6.5, 6, 10)
-st2 = Student("Nguyen Ngoc Hung", 456, False, 6.5, 6, 9)
-st3 = Student("name", 123, True, 5, 6, 7)
-# print(st, p)
+def sendmail() : 
+    fromaddr = "davisdavis448@gmail.com"
+    toaddr = "hung.nguyen0304@hcmut.edu.vn"
+    msg = MIMEMultipart()    
+    msg['From'] = fromaddr
+    msg['To'] = toaddr
+    msg['Subject'] = "TIÊU ĐỀ CỦA MAIL (SUBJECT)"
+    body = "NỘI DUNG MAIL"
+    try:
+        msg.attach(MIMEText(body, 'plain'))
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(fromaddr, "aqkjshphizdcdkcq")
+        text = msg.as_string()
+        server.sendmail(fromaddr, toaddr, text)
+        server.quit()
+    except Exception as e:
+        print(str(e))
+    
+def openPDF() : 
+    # Open the PDF file
+    with open('report.pdf', 'rb') as file:
+        # Create a PDF reader object
+        pdf_reader = PyPDF2.PdfReader(file)
+        num_pages = len(pdf_reader.pages)
+        infor = pdf_reader.metadata
+        print(num_pages, infor)
+        first = pdf_reader.pages[0]
+        
+        writer = PyPDF2.PdfWriter()
+        writer.add_page(first)
+        writer.write("first.pdf")
+        writer.close()
+        # Iterate over each page and extract text
+        # for page in pdf_reader.pages:
+        #     text = page.extract_text()
+        #     print(text)
 
-lst = []
-lst.append(st)
-lst.append(st2)
-manage = ManagementStu2(lst)
-manage.addStudent(st3)
-manage.removeStudent(456)
-# manage.saveToFile()
-# manage.studentLst = []
-# manage.loadFromFile("student.txt")
-# manage.extractZip()
-print(manage)
+def openExcel():
+    df = pd.read_excel("file_example_XLS_50.xls", "Sheet1", index_col= 'Id')
+    df = df.drop(columns=[0])
 
-# print(len(manage))
+    new_df = df[df.Country == "France"]
+
+    new_df.to_csv("france.csv")
+    df['Full Name'] = df['First Name'] + ' ' + df['Last Name']
+    df = df.drop(columns= ['First Name', 'Last Name'])
+    print(df)
+
+class decorate: 
+    def hello_decorator(func):
+        def wrapper():
+            print(f'begin {func.__name__}')
+            func()
+            print("end")
+        return wrapper
+        
+    def display():
+        print("inside function")    
+        
+    @hello_decorator
+    def display2():
+        print("inside function")
+        
+    print(display.__name__)
+
+    # temp = hello_decorator(display)
+    # temp()
+    # display2()
+
+def openimg():
+    img = Image.open('cut.jpg')
+
+    img = img.rotate(180)
+    w, h = img.size
+    img = img.resize((int(w/2), int(h/2)))
+
+    img.save('img2.jpg')
+
+class arg:
+    # args is tuple 
+    def func(a, b, *args):
+        print(a, b)
+        for x in args: 
+            print(x)
+
+    # kargs is dict    
+    def func2(**kargs):
+        for (key, value) in kargs.items():
+            print(key, value)
+    func(123, 456, 454)
+    func2(c = 4, a = 2)
+    
+class forTest(unittest.TestCase):
+    def test_1(self):
+        inp = "TEST".lower()
+        out = 'test'
+        self.assertEqual(inp, out)
+        
+    def test_2(self):
+        inp = "TEST".lower()
+        self.assertTrue(inp.isupper(), "not upper")
+        
