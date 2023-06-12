@@ -5,6 +5,7 @@ import smtplib
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email import encoders
 import PyPDF2
 from PIL import Image
 import unittest
@@ -161,11 +162,21 @@ def sendmail() :
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(fromaddr, "aqkjshphizdcdkcq")
+        #attach file 
+        filename = "first.pdf"
+        with open(filename, 'rb') as f:
+            attachfile = MIMEBase("application", "octet-stream")
+            attachfile.set_payload(f.read())
+        encoders.encode_base64(attachfile)
+        attachfile.add_header("Content-Disposition", f"attachment; filename = {filename}")
+        msg.attach(attachfile)
+        
         text = msg.as_string()
         server.sendmail(fromaddr, toaddr, text)
         server.quit()
     except Exception as e:
         print(str(e))
+        
     
 def openPDF() : 
     # Open the PDF file
@@ -198,22 +209,8 @@ def openExcel():
     print(df)
 
 class decorate: 
-    def hello_decorator(func):
-        def wrapper():
-            print(f'begin {func.__name__}')
-            func()
-            print("end")
-        return wrapper
+    pass
         
-    def display():
-        print("inside function")    
-        
-    @hello_decorator
-    def display2():
-        print("inside function")
-        
-    print(display.__name__)
-
     # temp = hello_decorator(display)
     # temp()
     # display2()
